@@ -965,7 +965,10 @@ fn test_create_campaign_at_u32_max_returns_overflow() {
 fn test_claim_refund_double_claim_rejected() {
     let (env, _, creator, contributor1, _, _token, token_admin, client) = setup_env();
 
-    let campaign_id = client.create_campaign(&make_campaign_params_simple(&env, &creator));
+    let campaign_id = client.create_campaign(&CreateCampaignParams {
+        funding_goal: 1000,
+        ..make_campaign_params_simple(&env, &creator)
+    });
     client.verify_campaign(&campaign_id);
 
     // Fund contributor and make a contribution.
@@ -973,7 +976,9 @@ fn test_claim_refund_double_claim_rejected() {
     client.contribute(&campaign_id, &contributor1, &500);
 
     // Let deadline pass without reaching goal so a refund is valid.
-    env.ledger().with_mut(|l| l.timestamp += 31 * crate::SECONDS_PER_DAY);
+    env.ledger().with_mut(|li| {
+        li.timestamp += 31 * crate::SECONDS_PER_DAY;
+    });
 
     // First refund must succeed.
     let result = client.try_claim_refund(&campaign_id, &contributor1);
