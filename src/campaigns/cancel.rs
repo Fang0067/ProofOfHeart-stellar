@@ -136,13 +136,6 @@ pub(crate) fn admin_cancel_campaign(
         );
     }
 
-    // #861: Read the revenue-pool balance so the event can report it.
-    // Unlike creator self-cancel, admin cancel deliberately does NOT
-    // refund the pool to the (presumed fraudulent) creator — the balance
-    // stays locked in the contract. Indexers need this figure to
-    // calculate outstanding liabilities.
-    let revenue_pool = get_revenue_pool(env, campaign_id);
-
     campaign.is_cancelled = true;
     campaign.is_active = false;
     set_campaign(env, campaign_id, &campaign);

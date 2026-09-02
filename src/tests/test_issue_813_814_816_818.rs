@@ -9,8 +9,8 @@ extern crate alloc;
 use alloc::format;
 
 use super::helpers::*;
-use crate::{Category, CreateCampaignParams};
-use soroban_sdk::{vec, Address, String};
+use crate::{Category, CreateCampaignParams, Error};
+use soroban_sdk::{testutils::Ledger as _, vec, Address, String};
 
 fn make_campaign(
     env: &soroban_sdk::Env,
