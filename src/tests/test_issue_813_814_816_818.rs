@@ -20,11 +20,12 @@ fn make_campaign_with_title(
     goal: i128,
     days: u64,
     category: Category,
-    index: u32,
+    seq: u32,
 ) -> u32 {
-    let id = client.create_campaign(&CreateCampaignParams {
+    extern crate std;
+    client.create_campaign(&CreateCampaignParams {
         creator: creator.clone(),
-        title: String::from_str(env, title),
+        title: String::from_str(env, &std::format!("Test Campaign {}", seq)),
         description: String::from_str(env, "Test description for campaign"),
         funding_goal: goal,
         duration_days: days,

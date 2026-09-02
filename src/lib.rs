@@ -839,7 +839,7 @@ impl ProofOfHeart {
         contributor: Address,
         start: u32,
         limit: u32,
-    ) -> (soroban_sdk::Vec<(u32, i128, String, bool)>, u32) {
+    ) -> soroban_sdk::Vec<(u32, i128, String, bool)> {
         queries::get_contributor_portfolio(&env, contributor, start, limit)
     }
 
