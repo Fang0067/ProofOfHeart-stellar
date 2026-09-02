@@ -100,13 +100,11 @@ fn test_claim_revenue_instruction_budget() {
 fn test_get_campaigns_by_category_bucketed_pagination_budget() {
     let (env, _admin, creator, _, _, _, _, client) = setup_env();
 
-    // NOTE: keep the number of campaigns below ~60. Every campaign writes an
-    // extra per-campaign vesting snapshot entry (#466); the soroban testutils
-    // host cannot externalize events for envs with more than ~62 campaigns
-    // worth of storage entries (panics in Env::drop with UnexpectedType),
-    // which flaked the CI `test` job. 58 still exercises the same bucketed
-    // pagination path (page at offset 48 -> ids 49..58).
-    for i in 0..58u32 {
+    // NOTE: keep the number of campaigns low (~20) to avoid Soroban testutils
+    // host stack overflow when creating many contracts in a single test.
+    // 20 campaigns still exercises the same bucketed pagination path
+    // (page at offset 10 -> ids 11..20).
+    for i in 0..20u32 {
         let params = CreateCampaignParams {
             creator: creator.clone(),
             title: String::from_str(&env, &format!("Campaign {i}")),
@@ -122,7 +120,7 @@ fn test_get_campaigns_by_category_bucketed_pagination_budget() {
     }
 
     env.budget().reset_default();
-    let (campaigns, _cursor) = client.get_campaigns_by_category(&Category::Learner, &48, &10);
+    let campaigns = client.get_campaigns_by_category(&Category::Learner, &10, &10);
 
     let cpu = env.budget().cpu_instruction_cost();
     assert!(
@@ -133,6 +131,6 @@ fn test_get_campaigns_by_category_bucketed_pagination_budget() {
     );
 
     assert_eq!(campaigns.len(), 10);
-    assert_eq!(campaigns.get(0).unwrap().id, 49);
-    assert_eq!(campaigns.get(9).unwrap().id, 58);
+    assert_eq!(campaigns.get(0).unwrap().id, 11);
+    assert_eq!(campaigns.get(9).unwrap().id, 20);
 }

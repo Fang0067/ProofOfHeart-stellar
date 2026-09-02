@@ -158,7 +158,7 @@ fn test_get_platform_stats_returns_aggregates() {
     assert_eq!(stats.active_campaigns, 1);
     assert_eq!(stats.verified_campaigns, 2);
     assert_eq!(stats.cancelled_campaigns, 1);
-    // c2 was cancelled, so its 300 is no longer counted in total_amount_raised
+    // After cancel_campaign, total_raised_global is decremented by c2's amount_raised (300).
     assert_eq!(stats.total_amount_raised, 400);
 }
 

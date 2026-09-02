@@ -44,6 +44,7 @@ fn test_cancel_campaign_decrements_total_raised_global_immediately() {
     token_admin.mint(&contributor, &500);
 
     let id = make_campaign(&env, &client, &creator, 1_000, 30, Category::Educator, 0);
+    client.verify_campaign(&id);
     client.contribute(&id, &contributor, &500);
 
     assert_eq!(client.get_total_raised_global(), 500);
@@ -65,6 +66,7 @@ fn test_cancel_campaign_allows_accept_token_update_after_all_refunds_claimed() {
     token_admin.mint(&contributor, &500);
 
     let id = make_campaign(&env, &client, &creator, 1_000, 30, Category::Educator, 0);
+    client.verify_campaign(&id);
     client.contribute(&id, &contributor, &500);
     client.cancel_campaign(&id);
 
@@ -82,6 +84,7 @@ fn test_claim_refund_does_not_double_decrement_after_creator_cancel() {
     token_admin.mint(&contributor, &300);
 
     let id = make_campaign(&env, &client, &creator, 1_000, 30, Category::Learner, 0);
+    client.verify_campaign(&id);
     client.contribute(&id, &contributor, &300);
 
     assert_eq!(client.get_total_raised_global(), 300);
@@ -170,6 +173,7 @@ fn test_failed_funding_claim_refund_still_decrements_total_raised_global() {
     token_admin.mint(&contributor, &400);
 
     let id = make_campaign(&env, &client, &creator, 1_000, 30, Category::Learner, 0);
+    client.verify_campaign(&id);
     client.contribute(&id, &contributor, &400);
     assert_eq!(client.get_total_raised_global(), 400);
 
@@ -275,6 +279,8 @@ fn test_burst_guard_block_counts_are_per_campaign_not_global() {
     // goal = 1_000; burst_check_threshold = 50% = 500
     let id_a = make_campaign(&env, &client, &creator, 1_000, 30, Category::Learner, 0);
     let id_b = make_campaign(&env, &client, &creator, 1_000, 30, Category::Educator, 1);
+    client.verify_campaign(&id_a);
+    client.verify_campaign(&id_b);
 
     // First contribution to each — amount_raised starts at 0 so the burst-check
     // early-exit fires and no block-count entry is written yet.
