@@ -99,16 +99,20 @@ fn test_claim_revenue_instruction_budget() {
 #[test]
 fn test_get_campaigns_by_category_bucketed_pagination_budget() {
     let (env, _admin, creator, _, _, _, _, client) = setup_env();
+    env.budget().reset_unlimited();
 
-    // NOTE: keep the number of campaigns low (~20) to avoid Soroban testutils
-    // host stack overflow when creating many contracts in a single test.
-    // 20 campaigns still exercises the same bucketed pagination path
-    // (page at offset 10 -> ids 11..20).
-    for i in 0..20u32 {
+    // NOTE: keep the number of campaigns below ~60. Every campaign writes an
+    // extra per-campaign vesting snapshot entry (#466); the soroban testutils
+    // host cannot externalize events for envs with more than ~62 campaigns
+    // worth of storage entries (panics in Env::drop with UnexpectedType),
+    // which flaked the CI `test` job. 58 still exercises the same bucketed
+    // pagination path (page at offset 48 -> ids 49..58).
+    for idx in 0..58u32 {
+        let title_data = [b'B', b'_', b'0' + (idx / 10) as u8, b'0' + (idx % 10) as u8];
         let params = CreateCampaignParams {
             creator: creator.clone(),
-            title: String::from_str(&env, &format!("Campaign {i}")),
-            description: String::from_str(&env, &format!("Benchmark campaign {i}")),
+            title: String::from_bytes(&env, &title_data),
+            description: String::from_str(&env, "Benchmark campaign"),
             funding_goal: 1_000,
             duration_days: 30,
             category: Category::Learner,
